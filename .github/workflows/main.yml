@@ -23,6 +23,8 @@ jobs:
         run: npm install
         working-directory: ./app
 
-      - name: Build Tauri app (directly with cargo)
-        run: cargo tauri build
+      - name: Build Tauri app
+        run: npx tauri build
         working-directory: ./app
+        env:
+          TAURI_SKIP_RUNTIME: 1
