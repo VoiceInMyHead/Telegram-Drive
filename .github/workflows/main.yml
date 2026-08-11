@@ -1,0 +1,52 @@
+name: 'Build Tauri App'
+
+on:
+  push:
+    branches:
+      - main  # <-- Сборка будет запускаться при каждом пуше в ветку main
+
+jobs:
+  build-tauri:
+    permissions:
+      contents: write # Нужно для создания релиза и загрузки артефактов[reference:3]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            args: '' # Здесь можно указать доп. аргументы для сборки
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: Install frontend dependencies
+        run: npm install # или yarn install, pnpm install, смотри что используется в проекте
+        working-directory: ./app # <-- Укажи папку с фронтендом, если она не в корне
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__ # Название тега для релиза
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'Сборка приложения для Windows'
+          releaseDraft: true # Создаст черновик релиза (можно будет поправить перед публикацией)
+          prerelease: false
+          args: ${{ matrix.args }}
