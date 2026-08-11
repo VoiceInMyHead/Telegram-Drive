@@ -27,4 +27,5 @@ jobs:
         run: npx tauri build
         working-directory: ./app
         env:
-          TAURI_SKIP_RUNTIME: 1
+          TAURI_SIGNING_PRIVATE_KEY: ""
+          TAURI_SIGNING_PUBLIC_KEY: ""
