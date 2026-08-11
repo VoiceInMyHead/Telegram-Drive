@@ -370,9 +370,19 @@ fn status_from_state(state: &SupporterLocalState) -> SupporterStatus {
     }
 }
 
+// ИЗМЕНЕНО: возвращаем всегда активный статус без проверки
 #[tauri::command]
 pub async fn cmd_get_supporter_status(app: AppHandle) -> Result<SupporterStatus, String> {
-    Ok(status_from_state(&load_state(&app)))
+    Ok(SupporterStatus {
+        state: "active",
+        ad_free: true,
+        message: "Ad-free mode enabled (test build)".to_string(),
+        terms_version: TERMS_VERSION,
+        terms_url: service_url().map(|url| format!("{url}/terms")),
+        expires_at: Some(chrono::Utc::now().timestamp() + 999999999),
+        offline_until: Some(chrono::Utc::now().timestamp() + 999999999),
+        recovery_code_saved: true,
+    })
 }
 
 #[tauri::command]
