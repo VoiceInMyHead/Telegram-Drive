@@ -23,6 +23,6 @@ jobs:
         run: npm install
         working-directory: ./app
 
-      - name: Build Tauri app
-        run: npm run tauri build -- --verbose
+      - name: Build Tauri app (directly with cargo)
+        run: cargo tauri build
         working-directory: ./app
